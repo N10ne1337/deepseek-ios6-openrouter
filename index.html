@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DeepSeek Chat iOS 6</title>
+<style>
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #cbd2dc;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #222;
+}
+
+#wrapper {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #cbd2dc;
+}
+
+/* ---- ГЛЯНЦЕВЫЙ ХЕДЕР iOS 6 ---- */
+#header {
+  background: #718fae;
+  background: -webkit-gradient(linear, left top, left bottom, from(#718fae), to(#47668b));
+  background: -webkit-linear-gradient(top, #718fae, #47668b);
+  background: linear-gradient(to bottom, #718fae, #47668b);
+  padding: 10px 12px 8px 12px;
+  border-bottom: 1px solid #2f435e;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 3px rgba(0,0,0,0.3);
+}
+
+#header h1 {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
+}
+
+#header p {
+  color: #d2ddeb;
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
+  margin-top: 2px;
+}
+
+/* ---- ПАНЕЛЬ НАСТРОЕК ---- */
+#settings {
+  background: #f0f0f4;
+  border-bottom: 1px solid #a7a7aa;
+  padding: 10px;
+}
+
+#settings label {
+  display: block;
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 3px;
+  font-weight: bold;
+  text-shadow: 0 1px 0 #fff;
+}
+
+#settings input[type="text"],
+#settings input[type="password"] {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ababae;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  color: #333;
+  -webkit-appearance: none;
+  outline: none;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+#toggle-settings {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f9f9f9), to(#cecece));
+  background: -webkit-linear-gradient(top, #f9f9f9, #cecece);
+  background: linear-gradient(to bottom, #f9f9f9, #cecece);
+  border: 1px solid #9e9e9e;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #444;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  text-shadow: 0 1px 0 #fff;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+/* ---- ОКНО ЧАТА IMESSAGE ---- */
+#chat-container {
+  background: #dbdee4;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 8px;
+}
+
+.msg-row {
+  margin-bottom: 12px;
+  clear: both;
+  overflow: hidden;
+}
+
+.msg-bubble {
+  display: inline-block;
+  max-width: 82%;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Зеленый iMessage (Вы) */
+.msg-user .msg-bubble {
+  float: right;
+  background: #79e034;
+  background: -webkit-gradient(linear, left top, left bottom, from(#8ae653), to(#5bc31c));
+  background: -webkit-linear-gradient(top, #8ae653, #5bc31c);
+  background: linear-gradient(to bottom, #8ae653, #5bc31c);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+  border: 1px solid #4ca414;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+/* Серый iMessage (ИИ) */
+.msg-ai .msg-bubble {
+  float: left;
+  background: #f0f0f2;
+  background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#eaeaea));
+  background: -webkit-linear-gradient(top, #fdfdfd, #eaeaea);
+  background: linear-gradient(to bottom, #fdfdfd, #eaeaea);
+  color: #000;
+  border: 1px solid #bababa;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+.msg-system .msg-bubble {
+  display: block;
+  margin: 0 auto;
+  max-width: 90%;
+  background: rgba(0,0,0,0.06);
+  color: #555;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 10px;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.msg-label {
+  display: block;
+  font-size: 10px;
+  color: #7a7e85;
+  margin-bottom: 2px;
+}
+
+.msg-user .msg-label { text-align: right; margin-right: 6px; }
+.msg-ai .msg-label { text-align: left; margin-left: 6px; }
+
+.clearfix { clear: both; display: block; height: 0; }
+
+/* ---- НИЖНЯЯ ПАНЕЛЬ ВВОДА ---- */
+#input-bar {
+  background: #9fa7b3;
+  background: -webkit-gradient(linear, left top, left bottom, from(#b4bcc6), to(#8892a0));
+  background: -webkit-linear-gradient(top, #b4bcc6, #8892a0);
+  background: linear-gradient(to bottom, #b4bcc6, #8892a0);
+  border-top: 1px solid #6d7580;
+  padding: 8px;
+}
+
+#input-bar textarea {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border: 1px solid #6d7580;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 14px;
+  color: #333;
+  resize: none;
+  height: 54px;
+  -webkit-appearance: none;
+  outline: none;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* Глянцевая синяя кнопка iOS 6 */
+#btn-send {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #1c4684;
+  border-radius: 6px;
+  background: #4a86e8;
+  background: -webkit-gradient(linear, left top, left bottom, from(#5086da), to(#164fa4));
+  background: -webkit-linear-gradient(top, #5086da, #164fa4);
+  background: linear-gradient(to bottom, #5086da, #164fa4);
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  -webkit-appearance: none;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 1px 1px rgba(255,255,255,0.2);
+  box-shadow: 0 1px 1px rgba(255,255,255,0.2);
+}
+
+#btn-send:active {
+  background: -webkit-gradient(linear, left top, left bottom, from(#164fa4), to(#0d3674));
+  background: -webkit-linear-gradient(top, #164fa4, #0d3674);
+  background: linear-gradient(to bottom, #164fa4, #0d3674);
+}
+
+#btn-send:disabled {
+  background: -webkit-gradient(linear, left top, left bottom, from(#999), to(#666));
+  background: -webkit-linear-gradient(top, #999, #666);
+  background: linear-gradient(to bottom, #999, #666);
+  border-color: #555;
+}
+
+#status-bar {
+  background: #fff8c4;
+  border-bottom: 1px solid #e6db87;
+  padding: 4px;
+  font-size: 11px;
+  color: #554400;
+  text-align: center;
+  display: none;
+}
+
+#btn-clear {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  margin-top: 6px;
+  border: 1px solid #b5b5b5;
+  border-radius: 6px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+  background: -webkit-linear-gradient(top, #eee, #ccc);
+  background: linear-gradient(to bottom, #eee, #ccc);
+  color: #555;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: bold;
+  -webkit-appearance: none;
+}
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+  <div id="header">
+    <h1>DeepSeek Chat</h1>
+    <p>Ретро-зеркало для iOS 6-8 (Без регистраций)</p>
+  </div>
+
+  <div style="background:#cbd2dc; padding:4px 8px;">
+    <button id="toggle-settings" onclick="toggleSettings()">⚙ Настройки (скрыть)</button>
+  </div>
+
+  <div id="settings">
+    <label>API-ключ OpenRouter</label>
+    <input type="password" id="api-key" placeholder="sk-or-..." onchange="saveSettings()" onblur="saveSettings()">
+
+    <label>Имя модели</label>
+    <input type="text" id="model-name" placeholder="deepseek/deepseek-v4-flash:free" onchange="saveSettings()" onblur="saveSettings()">
+
+    <button id="btn-clear" onclick="clearChat()">🗑 Очистить историю диалога</button>
+  </div>
+
+  <div id="status-bar"></div>
+  <div id="chat-container"></div>
+
+  <div id="input-bar">
+    <textarea id="user-input" placeholder="Ваше сообщение..."></textarea>
+    <button id="btn-send" onclick="sendMessage()">Отправить</button>
+  </div>
+</div>
+
+<script>
+var chatHistory = [];
+var settingsVisible = true;
+
+function setCookie(name, value) {
+  var d = new Date();
+  d.setTime(d.getTime() + (365*24*60*60*1000));
+  try { document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toGMTString() + "; path=/"; } catch(e) {}
+}
+
+function getCookie(name) {
+  try {
+    var ca = document.cookie.split(';');
+    for(var i=0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+      if (c.indexOf(name + "=") == 0) return decodeURIComponent(c.substring(name.length+1,c.length));
+    }
+  } catch(e) {}
+  return null;
+}
+
+function saveSettings() {
+  var key = document.getElementById("api-key").value;
+  var model = document.getElementById("model-name").value;
+  setCookie("or_key", key);
+  setCookie("or_model", model);
+  try {
+    localStorage.setItem("or_key", key);
+    localStorage.setItem("or_model", model);
+  } catch(e) {}
+}
+
+function loadSettings() {
+  var key = "";
+  var model = "deepseek/deepseek-v4-flash:free";
+  try {
+    key = localStorage.getItem("or_key") || getCookie("or_key") || "";
+    model = localStorage.getItem("or_model") || getCookie("or_model") || "deepseek/deepseek-v4-flash:free";
+  } catch(e) {
+    key = getCookie("or_key") || "";
+    model = getCookie("or_model") || "deepseek/deepseek-v4-flash:free";
+  }
+  document.getElementById("api-key").value = key;
+  document.getElementById("model-name").value = model;
+}
+
+function toggleSettings() {
+  var panel = document.getElementById("settings");
+  var btn = document.getElementById("toggle-settings");
+  if (settingsVisible) {
+    panel.style.display = "none";
+    btn.innerHTML = "⚙ Настройки (показать)";
+    settingsVisible = false;
+  } else {
+    panel.style.display = "block";
+    btn.innerHTML = "⚙ Настройки (скрыть)";
+    settingsVisible = true;
+  }
+  resizeChat();
+}
+
+function appendMessage(role, text) {
+  var container = document.getElementById("chat-container");
+  var row = document.createElement("div");
+  row.className = "msg-row " + (role === "user" ? "msg-user" : (role === "ai" ? "msg-ai" : "msg-system"));
+
+  if (role !== "system") {
+    var lbl = document.createElement("span");
+    lbl.className = "msg-label";
+    lbl.innerHTML = role === "user" ? "Вы" : "DeepSeek";
+    row.appendChild(lbl);
+  }
+
+  var bubble = document.createElement("span");
+  bubble.className = "msg-bubble";
+  bubble.innerHTML = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+  
+  row.appendChild(bubble);
+  var clr = document.createElement("div");
+  clr.className = "clearfix";
+  row.appendChild(clr);
+  
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+  return bubble;
+}
+
+function sendMessage() {
+  var key = document.getElementById("api-key").value.trim();
+  var model = document.getElementById("model-name").value.trim();
+  var input = document.getElementById("user-input").value.trim();
+
+  if (!key || !model || !input) return;
+
+  appendMessage("user", input);
+  chatHistory.push({ "role": "user", "content": input });
+  document.getElementById("user-input").value = "";
+
+  var btn = document.getElementById("btn-send");
+  var status = document.getElementById("status-bar");
+  btn.disabled = true;
+  btn.innerHTML = "Думает...";
+  status.style.display = "block";
+  status.innerHTML = "Отправка запроса через свободный прокси...";
+
+  // Полностью открытый прокси без регистраций и токенов
+  var targetUrl = "https://openrouter.ai/api/v1/chat/completions";
+  var proxyUrl = "https://cors-anywhere.herokuapp.com/" + targetUrl;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", proxyUrl, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Authorization", "Bearer " + key);
+  xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+  var aiBubble = null;
+  var accumulatedText = "";
+  var seenBytes = 0;
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 3 || xhr.readyState === 4) {
+      status.style.display = "none";
+      
+      if (xhr.status === 200) {
+        var rawResponse = xhr.responseText;
+        var newChunks = rawResponse.substring(seenBytes);
+        seenBytes = rawResponse.length;
+
+        var lines = newChunks.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line || line === "data: [DONE]") continue;
+
+          if (line.indexOf("data:") === 0) {
+            try {
+              var jsonStr = line.substring(5).trim();
+              var parsed = JSON.parse(jsonStr);
+              if (parsed && parsed.choices && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+                var content = parsed.choices[0].delta.content;
+                accumulatedText += content;
+
+                if (!aiBubble) {
+                  aiBubble = appendMessage("ai", accumulatedText);
+                } else {
+                  aiBubble.innerHTML = accumulatedText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+                  var container = document.getElementById("chat-container");
+                  container.scrollTop = container.scrollHeight;
+                }
+              }
+            } catch(e) {}
+          }
+        }
+      }
+    }
+
+    if (xhr.readyState === 4) {
+      btn.disabled = false;
+      btn.innerHTML = "Отправить";
+
+      if (xhr.status === 200) {
+        if (accumulatedText) {
+          chatHistory.push({ "role": "assistant", "content": accumulatedText });
+        } else {
+          try {
+            var res = JSON.parse(xhr.responseText);
+            if (res && res.choices && res.choices[0].message.content) {
+              var text = res.choices[0].message.content;
+              appendMessage("ai", text);
+              chatHistory.push({ "role": "assistant", "content": text });
+              return;
+            }
+          } catch(e) {}
+          appendMessage("system", "Ошибка: Пустой ответ.");
+          chatHistory.pop();
+        }
+      } else {
+        if (!aiBubble) {
+          if (xhr.status === 403) {
+            appendMessage("system", "Прокси требует активации. Пожалуйста, перейдите со своего устройства по ссылке https://cors-anywhere.herokuapp.com/corsdemo и нажмите там кнопку для включения временного доступа.");
+          } else {
+            appendMessage("system", "Ошибка сети: Статус " + xhr.status);
+          }
+          chatHistory.pop();
+        }
+      }
+    }
+  };
+
+  xhr.send(JSON.stringify({
+    "model": model,
+    "messages": chatHistory,
+    "stream": true
+  }));
+}
+
+function clearChat() {
+  chatHistory = [];
+  document.getElementById("chat-container").innerHTML = "";
+  appendMessage("system", "Диалог очищен. Начните заново.");
+}
+
+function resizeChat() {
+  var container = document.getElementById("chat-container");
+  var totalH = window.innerHeight || document.documentElement.clientHeight || 480;
+  var headerH = document.getElementById("header").offsetHeight || 50;
+  var toggleH = 34;
+  var settingsH = settingsVisible ? (document.getElementById("settings").offsetHeight || 150) : 0;
+  var inputH = document.getElementById("input-bar").offsetHeight || 90;
+  
+  var finalH = totalH - headerH - toggleH - settingsH - inputH - 10;
+  container.style.height = (finalH < 150 ? 150 : finalH) + "px";
+}
+
+window.onload = function() {
+  loadSettings();
+  resizeChat();
+  appendMessage("system", "Добро пожаловать! Введите ключ и начните общение.");
+  
+  window.onresize = resizeChat;
+  document.getElementById("user-input").onkeydown = function(e) {
+    if ((e || window.event).keyCode === 13 && !(e || window.event).shiftKey) {
+      if (e.preventDefault) e.preventDefault();
+      sendMessage();
+      return false;
+    }
+  };
+};
+</script>
+</body>
+</html>
